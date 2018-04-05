@@ -60,17 +60,57 @@ namespace fbl
 
             client = new Auth0Client(new Auth0ClientOptions
             {
-                Domain = Resources.GetString(Resource.String.auth0_domain),
-                ClientId = Resources.GetString(Resource.String.auth0_client_id),
+                Domain = "tranquillum.eu.auth0.com",
+                ClientId = "lKDRgOS-2W1egwfq5UD3h1VEOUmVcIUM",
                 Activity = this
             });
 
 
         }
 
-        
+        protected override void OnResume()
+        {
+            base.OnResume();
 
-        private void Fb_Click(object sender, EventArgs e)
+            if (progress != null)
+            {
+                progress.Dismiss();
+
+                progress.Dispose();
+                progress = null;
+            }
+        }
+
+        protected override async void OnNewIntent(Intent intent)
+        {
+            base.OnNewIntent(intent);
+
+            var loginResult = await client.ProcessResponseAsync(intent.DataString, authorizeState);
+
+            var sb = new StringBuilder();
+            if (loginResult.IsError)
+            {
+                sb.AppendLine($"An error occurred during login: {loginResult.Error}");
+            }
+            else
+            {
+                sb.AppendLine($"ID Token: {loginResult.IdentityToken}");
+                sb.AppendLine($"Access Token: {loginResult.AccessToken}");
+                sb.AppendLine($"Refresh Token: {loginResult.RefreshToken}");
+
+                sb.AppendLine();
+
+                sb.AppendLine("-- Claims --");
+                foreach (var claim in loginResult.User.Claims)
+                {
+                    sb.AppendLine($"{claim.Type} = {claim.Value}");
+                }
+            }
+
+            userDetailsTextView.Text = sb.ToString();
+        }
+
+        private async void Fb_Click(object sender, EventArgs e)
         {
             //auth = new OAuth2Authenticator(
             //     clientId: "1194275697381722",
@@ -83,7 +123,20 @@ namespace fbl
             //auth.Completed += FBAuth_Completed;
             //StartActivity(auth.GetUI(this));
 
+            progress = new ProgressDialog(this);
+            progress.SetTitle("Log In");
+            progress.SetMessage("Please wait while redirecting to login screen...");
+            progress.SetCancelable(false); // disable dismiss by tapping outside of the dialog
+            progress.Show();
 
+            // Prepare for the login
+            authorizeState = await client.PrepareLoginAsync();
+
+            // Send the user off to the authorization endpoint
+            var uri = Android.Net.Uri.Parse(authorizeState.StartUrl);
+            var intent = new Intent(Intent.ActionView, uri);
+            intent.AddFlags(ActivityFlags.NoHistory);
+            StartActivity(intent);
 
 
 
