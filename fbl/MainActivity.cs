@@ -1,19 +1,36 @@
 ﻿using Android.App;
-using Android.Widget;
+using Android.Content;
+using Android.Content.PM;
 using Android.OS;
+using Android.Text.Method;
+using Android.Widget;
+using Auth0.OidcClient;
+using IdentityModel.OidcClient;
 using System;
-using Xamarin.Auth;
-using Newtonsoft.Json.Linq;
 using System.Json;
-
+using System.Text;
+using Xamarin.Auth;
 
 namespace fbl
 {
     [Activity(Label = "fbl", MainLauncher = true)]
+    [IntentFilter(
+        new[] { Intent.ActionView },
+        Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable },
+        DataScheme = "fbLogin",
+        DataHost = "tranquillum.eu.auth0.com",
+        DataPathPrefix = "/android/fbLogin/callback")]
     public class MainActivity : Activity
     {
-        Button fb;
-        TextView fbname;
+        private Auth0Client client;
+        private Button loginButton;
+        private TextView userDetailsTextView;
+        private AuthorizeState authorizeState;
+        ProgressDialog progress;
+
+        static OAuth2Authenticator auth;
+        private Button fb;
+        private TextView fbname;
         protected override void OnCreate(Bundle savedInstanceState)
         {
 
@@ -35,33 +52,44 @@ namespace fbl
 
             //    string keyhash = Convert.ToBase64String(mb.Digest());	
             //    Console.WriteLine("KeyHash", keyhash);	
-            //
+            
+
             fbname = FindViewById<TextView>(Resource.Id.name);
             fb = FindViewById<Button>(Resource.Id.fbin);
             fb.Click += Fb_Click;
+
+            client = new Auth0Client(new Auth0ClientOptions
+            {
+                Domain = Resources.GetString(Resource.String.auth0_domain),
+                ClientId = Resources.GetString(Resource.String.auth0_client_id),
+                Activity = this
+            });
+
+
         }
 
         
 
         private void Fb_Click(object sender, EventArgs e)
         {
-            var auth = new OAuth2Authenticator(
-                 clientId: "1194275697381722",
-                 clientSecret: "fa0fcad73e81fb8b7fa3f7903c17f276",
-                 scope: "",
-                 authorizeUrl: new Uri("https://m.facebook.com/digitel/oauth/"),
-                 redirectUrl: new Uri("https://www.facebook.com/connect/login_success.html"),
-                 accessTokenUrl: new Uri("https://graph.facebook.com/oauth/access_token"));
+            //auth = new OAuth2Authenticator(
+            //     clientId: "1194275697381722",
+            //     clientSecret: "fa0fcad73e81fb8b7fa3f7903c17f276",
+            //     scope: "",
+            //     authorizeUrl: new Uri("https://m.facebook.com/digitel/oauth/"),
+            //     redirectUrl: new Uri("https://www.facebook.com/connect/login_success.html"),
+            //     accessTokenUrl: new Uri("https://graph.facebook.com/oauth/access_token"));
 
-            
-           
+            //auth.Completed += FBAuth_Completed;
+            //StartActivity(auth.GetUI(this));
 
-            auth.Completed += FBAuth_Completed;
-            StartActivity(auth.GetUI(this));
 
-            //PresentViewController(ui, true, null);
 
-           
+
+
+
+
+
 
         }
 
@@ -98,5 +126,7 @@ namespace fbl
 
         }
     }
+
+    //https://github.com/auth0-community/auth0-xamarin-oidc-samples/blob/master/Quickstart/01-Login/Android/AndroidSample/MainActivity.cs
 }
 
