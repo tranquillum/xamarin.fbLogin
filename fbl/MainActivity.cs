@@ -13,28 +13,28 @@ using Xamarin.Auth;
 
 namespace fbl
 {
-    [Activity(Label = "fbl", MainLauncher = true)]
+    [Activity(Label = "fbl", MainLauncher = true,  LaunchMode = LaunchMode.SingleTask)]
     [IntentFilter(
         new[] { Intent.ActionView },
         Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable },
-        DataScheme = "fbLogin",
+        DataScheme = "fbl.fbl",
         DataHost = "tranquillum.eu.auth0.com",
-        DataPathPrefix = "/android/fbLogin/callback")]
+        DataPathPrefix = "/android/fbl.fbl/callback")]
     public class MainActivity : Activity
     {
         private Auth0Client client;
-        private Button loginButton;
-        private TextView userDetailsTextView;
+        //private Button loginButton;
+        //private TextView userDetailsTextView;
         private AuthorizeState authorizeState;
-        ProgressDialog progress;
+        //ProgressDialog progress;
 
-        static OAuth2Authenticator auth;
+        //static OAuth2Authenticator auth;
         private Button fb;
         private TextView fbname;
         protected override void OnCreate(Bundle savedInstanceState)
         {
 
-            
+           
             //FacebookSdk.SdkInitialize(getApplicationContext());
             //AppEventsLogger.ActivateApp(this);
 
@@ -61,7 +61,7 @@ namespace fbl
             client = new Auth0Client(new Auth0ClientOptions
             {
                 Domain = "tranquillum.eu.auth0.com",
-                ClientId = "lKDRgOS-2W1egwfq5UD3h1VEOUmVcIUM",
+                ClientId = "wjBZFDNJV2fHU76V03EuFT7cLIfES1Bi",
                 Activity = this
             });
 
@@ -72,13 +72,13 @@ namespace fbl
         {
             base.OnResume();
 
-            if (progress != null)
-            {
-                progress.Dismiss();
+            //if (progress != null)
+            //{
+            //    progress.Dismiss();
 
-                progress.Dispose();
-                progress = null;
-            }
+            //    progress.Dispose();
+            //    progress = null;
+            //}
         }
 
         protected override async void OnNewIntent(Intent intent)
@@ -107,7 +107,8 @@ namespace fbl
                 }
             }
 
-            userDetailsTextView.Text = sb.ToString();
+            //userDetailsTextView.Text = sb.ToString();
+            fbname.Text = sb.ToString();
         }
 
         private async void Fb_Click(object sender, EventArgs e)
@@ -123,11 +124,11 @@ namespace fbl
             //auth.Completed += FBAuth_Completed;
             //StartActivity(auth.GetUI(this));
 
-            progress = new ProgressDialog(this);
-            progress.SetTitle("Log In");
-            progress.SetMessage("Please wait while redirecting to login screen...");
-            progress.SetCancelable(false); // disable dismiss by tapping outside of the dialog
-            progress.Show();
+            //progress = new ProgressDialog(this);
+            //progress.SetTitle("Log In");
+            //progress.SetMessage("Please wait while redirecting to login screen...");
+            //progress.SetCancelable(false); // disable dismiss by tapping outside of the dialog
+            //progress.Show();
 
             // Prepare for the login
             authorizeState = await client.PrepareLoginAsync();
