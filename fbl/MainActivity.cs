@@ -52,8 +52,8 @@ namespace fbl
 
             //    string keyhash = Convert.ToBase64String(mb.Digest());	
             //    Console.WriteLine("KeyHash", keyhash);	
-            
 
+            
             fbname = FindViewById<TextView>(Resource.Id.name);
             fb = FindViewById<Button>(Resource.Id.fbin);
             fb.Click += Fb_Click;
