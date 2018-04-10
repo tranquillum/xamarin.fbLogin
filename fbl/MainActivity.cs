@@ -10,16 +10,18 @@ using System;
 using System.Json;
 using System.Text;
 using Xamarin.Auth;
+using Xamarin.Facebook;
+using Xamarin.Facebook.AppEvents;
 
 namespace fbl
 {
     [Activity(Label = "fbl", MainLauncher = true,  LaunchMode = LaunchMode.SingleTask)]
-    [IntentFilter(
-        new[] { Intent.ActionView },
-        Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable },
-        DataScheme = "fbl.fbl",
-        DataHost = "tranquillum.eu.auth0.com",
-        DataPathPrefix = "/android/fbl.fbl/callback")]
+    //[IntentFilter(
+    //    new[] { Intent.ActionView },
+    //    Categories = new[] { Intent.CategoryDefault, Intent.CategoryBrowsable },
+    //    DataScheme = "fbl.fbl",
+    //    DataHost = "tranquillum.eu.auth0.com",
+    //    DataPathPrefix = "/android/fbl.fbl/callback")]
     public class MainActivity : Activity
     {
         private Auth0Client client;
@@ -28,13 +30,13 @@ namespace fbl
         private AuthorizeState authorizeState;
         //ProgressDialog progress;
 
-        //static OAuth2Authenticator auth;
+        static OAuth2Authenticator auth;
         private Button fb;
         private TextView fbname;
         protected override void OnCreate(Bundle savedInstanceState)
         {
 
-           
+
             //FacebookSdk.SdkInitialize(getApplicationContext());
             //AppEventsLogger.ActivateApp(this);
 
@@ -60,7 +62,7 @@ namespace fbl
 
             client = new Auth0Client(new Auth0ClientOptions
             {
-                Domain = "tranquillum.eu.auth0.com",
+                Domain = "tranquillum.eu.auth0.com",         
                 ClientId = "wjBZFDNJV2fHU76V03EuFT7cLIfES1Bi",
                 Activity = this
             });
@@ -81,48 +83,53 @@ namespace fbl
             //}
         }
 
-        protected override async void OnNewIntent(Intent intent)
-        {
-            base.OnNewIntent(intent);
+        //protected override async void OnNewIntent(Intent intent)
+        //{
+        //    base.OnNewIntent(intent);
 
-            var loginResult = await client.ProcessResponseAsync(intent.DataString, authorizeState);
+        //    var loginResult = await client.ProcessResponseAsync(intent.DataString, authorizeState);
 
-            var sb = new StringBuilder();
-            if (loginResult.IsError)
-            {
-                sb.AppendLine($"An error occurred during login: {loginResult.Error}");
-            }
-            else
-            {
-                sb.AppendLine($"ID Token: {loginResult.IdentityToken}");
-                sb.AppendLine($"Access Token: {loginResult.AccessToken}");
-                sb.AppendLine($"Refresh Token: {loginResult.RefreshToken}");
+        //    var sb = new StringBuilder();
+        //    if (loginResult.IsError)
+        //    {
+        //        sb.AppendLine($"An error occurred during login: {loginResult.Error}");
+        //    }
+        //    else
+        //    {
+        //        sb.AppendLine($"ID Token: {loginResult.IdentityToken}");
+        //        sb.AppendLine($"Access Token: {loginResult.AccessToken}");
+        //        sb.AppendLine($"Refresh Token: {loginResult.RefreshToken}");
 
-                sb.AppendLine();
+        //        sb.AppendLine();
 
-                sb.AppendLine("-- Claims --");
-                foreach (var claim in loginResult.User.Claims)
-                {
-                    sb.AppendLine($"{claim.Type} = {claim.Value}");
-                }
-            }
+        //        sb.AppendLine("-- Claims --");
+        //        foreach (var claim in loginResult.User.Claims)
+        //        {
+        //            sb.AppendLine($"{claim.Type} = {claim.Value}");
+        //        }
+        //    }
 
-            //userDetailsTextView.Text = sb.ToString();
-            fbname.Text = sb.ToString();
-        }
+        //    //userDetailsTextView.Text = sb.ToString();
+        //    fbname.Text = sb.ToString();
+        //}
 
         private async void Fb_Click(object sender, EventArgs e)
         {
-            //auth = new OAuth2Authenticator(
-            //     clientId: "1194275697381722",
-            //     clientSecret: "fa0fcad73e81fb8b7fa3f7903c17f276",
-            //     scope: "",
-            //     authorizeUrl: new Uri("https://m.facebook.com/digitel/oauth/"),
-            //     redirectUrl: new Uri("https://www.facebook.com/connect/login_success.html"),
-            //     accessTokenUrl: new Uri("https://graph.facebook.com/oauth/access_token"));
+            auth = new OAuth2Authenticator(
+                 clientId: "1194275697381722",
+                 clientSecret: "fa0fcad73e81fb8b7fa3f7903c17f276",
+                 scope: "",
+                 authorizeUrl: new Uri("https://m.facebook.com/digitel/oauth/"),
+                 redirectUrl: new Uri("https://www.facebook.com/connect/login_success.html"),
+                 accessTokenUrl: new Uri("https://graph.facebook.com/oauth/access_token"));
 
-            //auth.Completed += FBAuth_Completed;
-            //StartActivity(auth.GetUI(this));
+            auth.Completed += FBAuth_Completed;
+            StartActivity(auth.GetUI(this));
+
+
+
+
+
 
             //progress = new ProgressDialog(this);
             //progress.SetTitle("Log In");
@@ -130,14 +137,17 @@ namespace fbl
             //progress.SetCancelable(false); // disable dismiss by tapping outside of the dialog
             //progress.Show();
 
-            // Prepare for the login
-            authorizeState = await client.PrepareLoginAsync();
 
-            // Send the user off to the authorization endpoint
-            var uri = Android.Net.Uri.Parse(authorizeState.StartUrl);
-            var intent = new Intent(Intent.ActionView, uri);
-            intent.AddFlags(ActivityFlags.NoHistory);
-            StartActivity(intent);
+
+
+            //// Prepare for the login
+            //authorizeState = await client.PrepareLoginAsync();
+
+            //// Send the user off to the authorization endpoint
+            //var uri = Android.Net.Uri.Parse(authorizeState.StartUrl);
+            //var intent = new Intent(Intent.ActionView, uri);
+            //intent.AddFlags(ActivityFlags.NoHistory);
+            //StartActivity(intent);
 
 
 
